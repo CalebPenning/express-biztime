@@ -17,5 +17,9 @@
   "bugs": {
     "url": "https://github.com/CalebPenning/express-biztime/issues"
   },
-  "homepage": "https://github.com/CalebPenning/express-biztime#readme"
+  "homepage": "https://github.com/CalebPenning/express-biztime#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^8.6.0"
+  }
 }
