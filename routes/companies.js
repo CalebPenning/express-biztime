@@ -50,17 +50,26 @@ router.post("/", async (req, res, next) => {
 // if code does not exist, user recieves a not found status and an error in the form of a json response. 
 router.get("/:code", async (req, res, next) => {
     try {
-        const {code} = req.params
-        const results = await db.query(
+        const code = req.params.code
+        const company = await db.query(
             `SELECT code, name, description
             FROM companies
-            WHERE code = $1`, [code])
+            WHERE code = $1`, [code]
+        )
 
-        if (results.rowCount === 0) {
-            const err = new ExpressError("Company not found for given code.", 404)
-            return next(err)
-        } else {
-            return res.json({company: results.rows[0]})
+        const invoices = await db.query(
+            `SELECT id
+            FROM invoices
+            WHERE comp_code = $1`, [code]
+        )
+
+        if (company.rows.length > 0) {
+            const compRes = company.rows[0]
+            const invoice = invoices.rows
+
+            compRes.invoices = invoice.map(i => i.id)
+
+            return res.json({"company": compRes})
         }
     }
 
