@@ -1,4 +1,5 @@
 /* Routes for retrieving invoice information */
+const e = require('express')
 const express = require('express')
 const router = new express.Router()
 const db = require("../db")
@@ -84,6 +85,37 @@ router.put("/:id", async (req, res, next) => {
             return res.json(results.rows[0])
         }
         
+        else {
+            return next(
+                new ExpressError(
+                    `Invoice with id of ${id} not found.`, 404
+                )
+            )
+        }
+    }
+
+    catch(e) {
+        return next(e)
+    }
+})
+
+router.delete("/:id", async (req, res, next) => {
+    try {
+        const testQuery = await db.query(
+            `SELECT id, amt
+            FROM invoices
+            WHERE id = $1`, [req.params.id]
+        )
+        if (testQuery.rows.length > 0) {
+            const { id } = req.params
+            const results = await db.query(
+                `DELETE FROM invoices
+                WHERE id = $1
+                RETURNING id, comp_code, amt, paid, add_date, paid_date;`, [id]
+            )
+            return res.json({deleted: results.rows[0]})
+        }
+
         else {
             return next(
                 new ExpressError(
